@@ -1,20 +1,39 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Inicio</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="alternarTema()">
+        <ion-icon name="contrast-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [style.--background]="colorFondo" [style.color]="colorTexto">
+  
+  <swiper-container pagination="true" loop="true" style="height: auto; padding-bottom: 40px;">
+    <swiper-slide *ngFor="let genre of genres">
+      <div class="slide-content" [style.color]="colorTexto">
+        <h2>{{ genre.title }}</h2>
+        <img [src]="genre.image" [alt]="genre.title" style="border-radius: 15px; max-height: 250px; margin: 15px auto; display: block;">
+        <p style="text-align: justify; padding: 0 20px;">{{ genre.description }}</p>
+      </div>
+    </swiper-slide>
+  </swiper-container>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <ion-card [style.--background]="colorFondo === '#ffffff' ? '#f4f4f4' : '#1e1e1e'" [style.color]="colorTexto">
+    <ion-card-header>
+      <ion-card-title [style.color]="colorTexto">Personalización</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      Usa el botón de la esquina superior para cambiar entre modo claro y oscuro.
+    </ion-card-content>
+  </ion-card>
+
+  <div class="ion-padding">
+    <ion-button (click)="regresarAIntro()" expand="block" fill="solid" color="secondary" shape="round">
+      <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+      Volver al Inicio (Bienvenida)
+    </ion-button>
   </div>
 </ion-content>
