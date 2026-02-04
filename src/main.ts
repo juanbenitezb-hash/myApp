@@ -3,6 +3,10 @@ import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } 
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { importProvidersFrom } from '@angular/core';
 import { IonicStorageModule } from '@ionic/storage-angular';
+import { addIcons } from 'ionicons';
+import * as ionicons from 'ionicons/icons';
+
+addIcons(ionicons);
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';

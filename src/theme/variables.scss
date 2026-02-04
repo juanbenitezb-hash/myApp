@@ -1,3 +1,35 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// Colores base de la aplicación
+:root {
+  --ion-color-primary: #3880ff;
+  --ion-color-primary-rgb: 56, 128, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3171e0;
+  --ion-color-primary-tint: #4c8dff;
 
+  --ion-background-color: #ffffff;
+  --ion-text-color: #000000;
+}
+
+// CONFIGURACIÓN MODO OSCURO (Lo que activa la Luna)
+body.dark {
+  --ion-color-primary: #d4af37; // Dorado elegante para modo noche
+  --ion-color-primary-contrast: #000000;
+
+  --ion-background-color: #000000 !important;
+  --ion-background-color-rgb: 0,0,0;
+
+  --ion-text-color: #ffffff !important;
+  --ion-text-color-rgb: 255,255,255;
+
+  --ion-item-background: #121212;
+  --ion-toolbar-background: #000000;
+  --ion-step-50: #0d0d0d;
+  --ion-step-100: #1a1a1a;
+
+  // Forzar que los items de lista se vean blancos en fondo negro
+  ion-item {
+    --color: #ffffff;
+    --background: #121212;
+  }
+}

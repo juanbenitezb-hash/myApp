@@ -23,4 +23,8 @@ export class StorageService {
   async obtener(llave: string) {
     return await this._storage?.get(llave);
   }
+
+  async eliminar(llave: string) {
+    await this._storage?.remove(llave);
+  }
 }

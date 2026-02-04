@@ -1,0 +1,35 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title style="color: white; font-weight: bold;">{{ album?.name }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cerrar()" style="--color: white;">Cerrar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ion-padding ion-text-center" *ngIf="album">
+    <img [src]="album.image" style="width: 140px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+  </div>
+
+  <ion-list>
+    <ion-item *ngFor="let cancion of canciones; index as i" lines="full">
+      <ion-avatar slot="start" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+        {{ i + 1 }}
+      </ion-avatar>
+
+      <ion-label (click)="seleccionarCancion(cancion)">
+        <h2 style="font-weight: bold;">{{ cancion.name }}</h2>
+      </ion-label>
+
+      <ion-buttons slot="end" fill="clear" (click)="alternarFavorito(cancion); $event.stopPropagation()">
+        <ion-icon 
+          slot="icon-only"
+          [name]="esFavorito(cancion) ? 'heart' : 'heart-outline'"
+          [style.color]="esFavorito(cancion) ? '#ff4444' : '#999'"
+          style="font-size: 24px;">
+        </ion-icon>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+</ion-content>

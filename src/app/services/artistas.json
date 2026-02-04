@@ -1,0 +1,64 @@
+{
+  "artists": [
+    {
+      "nombre": "Ludwig van Beethoven",
+      "genero": "Clásico / Romántico",
+      "pais": "Alemania",
+      "anios_activo": "1770 - 1827",
+      "albumes": [
+        { "titulo": "Sinfonía No. 9", "anio": 1824 },
+        { "titulo": "Sonata Claro de Luna", "anio": 1801 }
+      ]
+    },
+    {
+      "nombre": "Wolfgang Amadeus Mozart",
+      "genero": "Clásico",
+      "pais": "Austria",
+      "anios_activo": "1756 - 1791",
+      "albumes": [
+        { "titulo": "Requiem", "anio": 1791 },
+        { "titulo": "Las bodas de Fígaro", "anio": 1786 }
+      ]
+    },
+    {
+      "nombre": "Johann Sebastian Bach",
+      "genero": "Barroco",
+      "pais": "Alemania",
+      "anios_activo": "1685 - 1750",
+      "albumes": [
+        { "titulo": "Conciertos de Brandeburgo", "anio": 1721 },
+        { "titulo": "El clave bien temperado", "anio": 1722 }
+      ]
+    },
+    {
+      "nombre": "Frédéric Chopin",
+      "genero": "Romántico",
+      "pais": "Polonia",
+      "anios_activo": "1810 - 1849",
+      "albumes": [
+        { "titulo": "Nocturnos Op. 9", "anio": 1832 },
+        { "titulo": "Estudios Op. 10", "anio": 1833 }
+      ]
+    },
+    {
+      "nombre": "Antonio Vivaldi",
+      "genero": "Barroco",
+      "pais": "Italia",
+      "anios_activo": "1678 - 1741",
+      "albumes": [
+        { "titulo": "Las cuatro estaciones", "anio": 1725 },
+        { "titulo": "Gloria", "anio": 1715 }
+      ]
+    },
+    {
+      "nombre": "Pyotr Ilyich Tchaikovsky",
+      "genero": "Romántico tardío",
+      "pais": "Rusia",
+      "anios_activo": "1840 - 1893",
+      "albumes": [
+        { "titulo": "El lago de los cisnes", "anio": 1876 },
+        { "titulo": "El cascanueces", "anio": 1892 }
+      ]
+    }
+  ]
+}

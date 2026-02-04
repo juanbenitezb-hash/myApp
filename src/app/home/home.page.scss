@@ -23,3 +23,41 @@
     padding: 0 10px; 
   }
 }
+
+/* Player fixed bottom styles */
+.has-player {
+  padding-bottom: 88px; /* espacio para el footer reproductor */
+}
+
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.player-left, .player-right {
+  width: 52px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.player-center {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.play-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  padding: 6px;
+}
+
+.player-center input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+}

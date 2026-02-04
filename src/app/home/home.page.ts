@@ -1,8 +1,9 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, OnDestroy } from '@angular/core';
+import { IonicModule, ModalController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { StorageService } from '../services/storage'; 
+import { MusicService } from '../services/music.service';
+import { StorageService } from '../services/storage';
+import { SongsModalPage } from '../songs-modal/songs-modal.page';
 
 @Component({
   selector: 'app-home',
@@ -13,49 +14,199 @@ import { StorageService } from '../services/storage';
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomePage implements OnInit {
+  albumes: any[] = [];
+  artistas: any[] = [];
+  
+  modoTema: boolean = false;
   colorFondo: string = '#ffffff';
   colorTexto: string = '#000000';
 
-  genres = [
-    {
-      title: 'Música Clásica',
-      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTw2t6iEqMKVlwNdUZ8byXlDn5pJB8ZxDmDg&s',
-      description: 'La música clásica es la corriente musical basada en las tradiciones de la música litúrgica y secular de Occidente.'
-    },
-    {
-      title: 'Instrumentos Utilizados',
-      image: 'https://i.pinimg.com/736x/2c/c5/35/2cc5355f302e6f2f6e6ec94c5f82eb6c.jpg',
-      description: 'Se agrupan en familias: cuerdas, viento madera, viento metal, percusión y tecla, siendo el violín y el piano icónicos.'
-    },
-    {
-      title: 'Grandes Artistas',
-      image: 'https://edicion.pijamasurf.com:8082/imagen_nota/quienes_son_los_10_mas_grandes_compositores_de_musica_clasica_10.jpg',
-      description: 'Incluyen a los pilares del clasicismo y romanticismo como Bach, Mozart, Beethoven, Chopin y Tchaikovsky.'
-    }
-  ];
+  constructor(
+    private musicService: MusicService,
+    private storage: StorageService,
+    private modalCtrl: ModalController
+  ) {}
 
-  constructor(private router: Router, private storage: StorageService) {}
+  // Reproductor
+  audio: HTMLAudioElement | null = null;
+  currentTrack: any = null;
+  isPlaying: boolean = false;
+  duration: number = 0; // segundos
+  currentTime: number = 0; // segundos
+  private _timer: any = null;
 
   async ngOnInit() {
-    const colorGuardado = await this.storage.obtener('mitema');
-    if (colorGuardado) {
-      this.colorFondo = colorGuardado;
-      this.colorTexto = this.colorFondo === '#ffffff' ? '#000000' : '#ffffff';
+    // Cargar tema guardado primero
+    const temaSaved = await this.storage.obtener('modo_oscuro');
+    if (temaSaved !== null && temaSaved !== undefined) {
+      this.modoTema = temaSaved;
     }
+    this.actualizarColores();
+
+    // Cargar álbumes y artistas
+    this.albumes = await this.musicService.obtenerAlbumes();
+    this.artistas = await this.musicService.obtenerArtistas();
+    
+    console.log('Home inicializado - Tema cargado:', this.modoTema);
   }
 
-  async alternarTema() {
-    if (this.colorFondo === '#ffffff') {
+  async cambiarTema() {
+    this.modoTema = !this.modoTema;
+    this.actualizarColores();
+    await this.storage.guardar('modo_oscuro', this.modoTema);
+  }
+
+  actualizarColores() {
+    if (this.modoTema) {
       this.colorFondo = '#121212';
       this.colorTexto = '#ffffff';
+      document.body.classList.add('dark');
     } else {
       this.colorFondo = '#ffffff';
       this.colorTexto = '#000000';
+      document.body.classList.remove('dark');
     }
-    await this.storage.guardar('mitema', this.colorFondo);
   }
 
-  regresarAIntro() {
-    this.router.navigateByUrl('/intro');
+  async abrirAlbum(album: any) {
+    const modal = await this.modalCtrl.create({
+      component: SongsModalPage,
+      componentProps: { album: album }
+    });
+    return await modal.present();
+  }
+
+  async abrirArtista(artista: any) {
+    const modal = await this.modalCtrl.create({
+      component: SongsModalPage,
+      componentProps: { 
+        album: { id: artista.id, name: 'Obras de ' + artista.name, image: artista.image } 
+      }
+    });
+    return await modal.present();
+  }
+
+  async abrirFavoritos() {
+    const favoritos = await this.storage.obtener('mis_favoritos');
+    const modal = await this.modalCtrl.create({
+      component: SongsModalPage,
+      componentProps: { 
+        album: { name: 'Mis Favoritos', image: 'https://cdn-icons-png.flaticon.com/512/833/833472.png' },
+        canciones: favoritos || [] 
+      }
+    });
+    return await modal.present();
+  }
+
+  async ngOnDestroy(): Promise<void> {
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.src = '';
+      this.audio = null;
+    }
+    if (this._timer) {
+      clearInterval(this._timer);
+      this._timer = null;
+    }
+  }
+
+  private async loadInitialTrack() {
+    try {
+      const tracks: any[] = await this.musicService.obtenerCanciones();
+      if (tracks && tracks.length > 0) {
+        const track = tracks.find(t => t.url || t.preview || t.audio || t.file) || tracks[0];
+        this.setTrack(track);
+      }
+    } catch (err) {
+      console.error('Error cargando pista inicial:', err);
+    }
+  }
+
+  private setTrack(track: any) {
+    if (!track) return;
+    this.currentTrack = track;
+    let src: any = track.url || track.preview || track.audio || track.file || track.stream || track.preview_url || track.audio_url || track.download_url || track.src || null;
+    if (src && typeof src === 'object') {
+      if (Array.isArray(src) && src.length) src = src[0];
+      if (src && typeof src === 'object' && src.url) src = src.url;
+    }
+    if (!src) {
+      console.warn('Track sin URL de audio:', track);
+      return;
+    }
+
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.src = '';
+      this.audio = null;
+    }
+
+    console.log('setTrack -> using src:', src, 'track:', track);
+    this.audio = new Audio(src);
+    try { this.audio.crossOrigin = 'anonymous'; } catch(e) {}
+    this.audio.preload = 'metadata';
+
+    this.audio.addEventListener('loadedmetadata', () => {
+      this.duration = Math.floor(this.audio?.duration || 0);
+    });
+
+    this.audio.addEventListener('timeupdate', () => {
+      this.currentTime = Math.floor(this.audio?.currentTime || 0);
+    });
+
+    this.audio.addEventListener('ended', () => {
+      this.isPlaying = false;
+      this.currentTime = 0;
+    });
+
+    this.audio.addEventListener('error', (ev:any) => {
+      console.error('Audio error event:', ev, 'audio.src=', this.audio?.src);
+    });
+
+    if (this._timer) clearInterval(this._timer);
+    this._timer = setInterval(() => {
+      if (this.audio && !isNaN(this.audio.currentTime)) {
+        this.currentTime = Math.floor(this.audio.currentTime);
+      }
+    }, 500);
+  }
+
+  async togglePlayPause() {
+    if (!this.audio) {
+      await this.loadInitialTrack();
+      if (!this.audio) return;
+    }
+
+    if (this.isPlaying) {
+      this.audio?.pause();
+      this.isPlaying = false;
+    } else {
+      try {
+        const p = this.audio?.play();
+        if (p instanceof Promise) await p;
+        this.isPlaying = true;
+      } catch (err) {
+        console.error('Error reproduciendo:', err);
+        this.isPlaying = false;
+      }
+    }
+  }
+
+  seekTo(seconds: number) {
+    if (!this.audio) return;
+    const s = Math.max(0, Math.min(seconds, this.duration || 0));
+    this.audio.currentTime = s;
+    this.currentTime = Math.floor(s);
+  }
+
+  formatTime(s: number) {
+    if (!s || isNaN(s)) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${sec < 10 ? '0' + sec : sec}`;
+  }
+
+  async ngAfterViewInit() {
+    await this.loadInitialTrack();
   }
 }
